@@ -1,41 +1,82 @@
 import express from 'express'
+import { v4 as uuid } from 'uuid'
 
 const app = express()
 
 app.use(express.json())
 
+interface User {
+  id: string,
+  name: string,
+  email: string
+}
+
+const users: User[] = []
+
 app.get('/users', (request, response) => {
-
-  // Query params example
-  // const {perPage, currentPage} = request.query;
-  // return response.json({})
-
-  return response.json({ users: ['usuario 1', 'usuario 2', 'usuario 3'] })
-
+  // buscar no banco de dados
+  return response.json(users)
 })
 
 app.post('/users', (request, response) => {
-  // Request body example
-  const body = request.body
-  console.log(body)
-  return response.json({
-    message: 'Criando usuário'
-  })
+  // receber os dados do novo usuario
+  const { name, email } = request.body
+
+  // criar um novo usuario
+  const user = {
+    id: uuid(),
+    name,
+    email
+  }
+
+  // registrar usuario na base de dados
+  users.push(user)
+
+  // retornar os dados do novo usuario
+  return response.json(user)
+
 })
 
 app.put('/users/:id', (request, response) => {
-  // Route params example
+  // receber os dados do usuario
   const { id } = request.params
-  console.log(id)
-  return response.json({
-    message: `usuário ${id} Atualizado`
-  })
+  const { name, email } = request.body
+
+  // localizar o usuário na base de dados
+  const userIndex = users.findIndex(user => user.id === id)
+
+  // se o usuario nao existir, retornar erro
+  if (userIndex < 0) {
+    return response.status(404).json({ error: 'User not found' })
+  }
+
+  // atualizar os dados do usuario
+  const user = { id, name, email }
+  users[userIndex] = user
+
+  // retornar os dados do usuario
+  return response.json(user)
+
 })
 
-app.delete('/users', (request, response) => {
-  return response.json({
-    message: 'Deletando usuário'
-  })
+app.delete('/users/:id', (request, response) => {
+  // receber id do usuario
+  const { id } = request.params
+
+  // localizar o usuário na base de dados
+  const userIndex = users.findIndex(user => user.id === id)
+
+  // se o usuario nao existir, retornar erro
+  if (userIndex < 0) {
+    return response.status(404).json({ error: 'User not found' })
+  }
+
+  // excluir o usuario
+  users.splice(userIndex, 1)
+
+  // retorna status sucesso
+  return response.status(204).send()
+
 })
 
 
