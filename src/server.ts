@@ -4,7 +4,7 @@ const app = express()
 
 app.get('/users', (request, response) => {
   return response.json({
-    users: ['usuario 1', 'usuario 2', 'usuario 3']
+    users: ['usuario 1', 'usuario 2', 'usuario 3', 'usuario 4']
    })
 })
 
